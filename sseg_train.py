@@ -6,19 +6,14 @@ import sseg_data_input2
 import  sseg_build_graph
 import torchvision.transforms.Lambda as L
 import sseg_loss
+from keras_layer_RoiSplit import RoiSplit
+from ssd_box_encode_decode_utils import  SSDBoxEncoder
 os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 
 if __name__ == '__main__':
 
     # Configurations
     config = Config()
-
-    class Config2(Config):
-        LEARNING_RATE = 0.000001
-
-
-    config2 = Config2()
-
 
     model = sseg_build_model2.SSDSEG(mode="training", config=config)
 
@@ -28,6 +23,26 @@ if __name__ == '__main__':
 
 #    weights_path = '/mnt/sda1/don/documents/ssd_face/ss_face2_l3_s2_focal/weights/ssdseg_weights_epoch-70.h5'
  #   model.train(config=config2,epochs=120,weights_path=weights_path,start_epoch=70,debug=False)
+
+    ssd_box_encoder = SSDBoxEncoder(img_height=config.img_height,
+                                    img_width=config.img_width,
+                                    n_classes=config.n_classes,
+                                    predictor_sizes=predictor_sizes,
+                                    min_scale=None,
+                                    max_scale=None,
+                                    scales=config.scales,
+                                    aspect_ratios_global=None,
+                                    aspect_ratios_per_layer=config.aspect_ratios,
+                                    two_boxes_for_ar1=config.two_boxes_for_ar1,
+                                    steps=config.steps,
+                                    offsets=config.offsets,
+                                    limit_boxes=config.limit_boxes,
+                                    variances=config.variances,
+                                    pos_iou_threshold=0.5,
+                                    neg_iou_threshold=0.2,
+                                    coords=config.coords,
+                                    normalize_coords=config.normalize_coords,
+                                    )
 
     train_generator = sseg_data_input2.data_generator_helen(batch_size=config.BATCH_SIZE, shuffle=True,
                                                            ssd_box_encoder=ssd_box_encoder,
@@ -39,7 +54,7 @@ if __name__ == '__main__':
                                                                        self.test_config.img_width],
                                                           config=self.test_config, augment=True)
 
-    for i in args.epoch:
+    for i in 10:
         model.train()
         input_ = next(train_generator) #input =[batch_gt_images, batch_boxc_true, batch_gt_mask,batch_gt_mask_face3]
         input_gt_boxc = input_[1]
@@ -71,8 +86,13 @@ if __name__ == '__main__':
                              name='boxc_loss')([input_gt_boxc,boxc_pred])
 
 #  loss function
-    loss = xxx
+    optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum,
+                          weight_decay=args.weight_decay)
+
+    loss = [mask_loss1,mask_loss2,mask_loss3,mask_loss4,mask_loss_face,boxc_loss]
+
     loss.backward()
+
     optimizer.step()
 
 

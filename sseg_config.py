@@ -43,6 +43,7 @@ class Config(object):
     coords = 'centroids'  # Whether the box coordinates to be used as targets for the model should be in the 'centroids', 'corners', or 'minmax' format, see documentation
     normalize_coords = True
 
+
     def __init__(self):
 
         self.Non = 0

@@ -1,4 +1,3 @@
-from models import sseg_net
 import sseg_build_graph
 import sseg_loss
 import sseg_data_input2 as sseg_data_input
@@ -23,13 +22,8 @@ class SSDSEG(nn.module):
 
         # class InferenceConfig(Config):
         #     BATCH_SIZE = 4
-        self.test_config = Config()
+        #self.test_config = Config()
         self.ssd = build_ssd(0,300,21)
-
-        if mode == 'training':
-            self.keras_model = self.build(config=config)
-        else:
-            self.keras_model = self.build_inference(config=config)
 
     def forward(self,config,input_image):
         input_image = input_image[0]  # to get input read image input = [input_image,input_gt_boxc,input_gt_mask,input_face3_gt]
@@ -70,7 +64,7 @@ class SSDSEG(nn.module):
         outputs = [pred_mask1,pred_mask2,pred_mask3,pred_mask4,face_mask,boxc_pred]
 #        inputs = [input_image,input_gt_boxc,input_gt_mask,input_face3_gt]
         #outputs = [  boxc_loss ,mask_loss1,mask_loss2,mask_loss3,mask_loss4,mask_loss_face,
-                     target_mask3,pred_mask3]
+        #             target_mask3,pred_mask3]
 
         return outputs
 
